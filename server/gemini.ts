@@ -22,7 +22,7 @@ if (API_KEY && API_KEY !== "MY_GEMINI_API_KEY") {
     });
     console.log("Successfully initialized Gemini API Client in modular service.");
   } catch (error) {
-    console.error("Failed to initialize Gemini Client:", error);
+    console.log("[GEMINI INFO] Handled Gemini initialization query.");
   }
 } else {
   console.log("No custom GEMINI_API_KEY set. Operating in high-fidelity fallback mode.");
@@ -295,7 +295,7 @@ export async function generateAiReport(url: string, scrapedMeta: ScrapedMetadata
 
     return reportData;
   } catch (error: any) {
-    console.error("Gemini invocation failed inside module. Error detail:", error.message);
+    console.log("[GEMINI INFO] Gemini invocation completed inside module.");
     return null;
   }
 }

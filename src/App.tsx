@@ -10,11 +10,22 @@ import LandingScanner from "./components/LandingScanner";
 import VisibilityCard from "./components/VisibilityCard";
 import ExplainabilityCard from "./components/ExplainabilityCard";
 import CompetitorBenchmark from "./components/CompetitorBenchmark";
+import CompetitiveDashboard from "./competitive/components/CompetitiveDashboard";
 import ImprovementCenter from "./components/ImprovementCenter";
+import ProgressTimeline from "./improvement/components/ProgressTimeline";
+import ValidationDashboard from "./validation/components/ValidationDashboard";
 import ExecutiveReport from "./components/ExecutiveReport";
 import EvidenceAuditor from "./components/EvidenceAuditor";
 import AiExplanationView from "./components/AiExplanationView";
 import ExecutiveDashboardView from "./components/ExecutiveDashboardView";
+import KnowledgeMap from "./components/KnowledgeMap";
+import PerceptionDashboard from "./components/PerceptionDashboard";
+import ReasoningDashboard from "./components/ReasoningDashboard";
+import RecommendationDashboard from "./components/RecommendationDashboard";
+import TrustDashboard from "./components/TrustDashboard";
+import { DecisionDashboard } from "./components/DecisionDashboard";
+import DocumentationView from "./components/DocumentationView";
+import ProductTour from "./components/ProductTour";
 import { 
   BarChart3, 
   Sparkles, 
@@ -24,8 +35,71 @@ import {
   CheckSquare, 
   FileText, 
   ArrowLeft,
-  ShieldCheck
+  ShieldCheck,
+  Network,
+  ThumbsUp,
+  Shield,
+  FileCheck,
+  Globe,
+  Lock,
+  FileWarning,
+  AlertCircle
 } from "lucide-react";
+
+const navGroups = [
+  {
+    id: "dashboard",
+    label: "Dashboard",
+    items: [
+      { id: "overview", label: "Executive Dashboard", icon: Layers }
+    ]
+  },
+  {
+    id: "intelligence",
+    label: "Intelligence",
+    items: [
+      { id: "knowledge", label: "Knowledge Map", icon: Network },
+      { id: "visibility", label: "AI Brand Perception", icon: TrendingUp },
+      { id: "decision", label: "AI Decision Intelligence", icon: Sparkles }
+    ]
+  },
+  {
+    id: "insights",
+    label: "Insights",
+    items: [
+      { id: "recommendation", label: "Recommendation Intelligence", icon: ThumbsUp },
+      { id: "trust", label: "Trust & Authority", icon: Shield },
+      { id: "competitors", label: "Competitive Intelligence", icon: Network }
+    ]
+  },
+  {
+    id: "evidence",
+    label: "Evidence",
+    items: [
+      { id: "evidence", label: "Evidence Auditor", icon: ShieldCheck },
+      { id: "validation", label: "AI Evidence Validation", icon: FileCheck },
+      { id: "explainability", label: "Interpretability WHY", icon: HelpCircle }
+    ]
+  },
+  {
+    id: "actions",
+    label: "Actions",
+    items: [
+      { id: "improvements", label: "Improvement Center", icon: CheckSquare },
+      { id: "progress", label: "AI Improvement Journey", icon: TrendingUp },
+      { id: "report", label: "One-Page Advisory Brief", icon: FileText }
+    ]
+  }
+];
+
+const getCategoryForTab = (tabId: string): string => {
+  if (tabId === "overview") return "dashboard";
+  if (["knowledge", "visibility", "decision"].includes(tabId)) return "intelligence";
+  if (["recommendation", "trust", "competitors"].includes(tabId)) return "insights";
+  if (["evidence", "validation", "explainability"].includes(tabId)) return "evidence";
+  if (["improvements", "progress", "report"].includes(tabId)) return "actions";
+  return "dashboard";
+};
 
 export default function App() {
   const [darkMode, setDarkMode] = React.useState<boolean>(() => {
@@ -33,13 +107,24 @@ export default function App() {
     return saved ? saved === "true" : true;
   });
 
+  const [activeSection, setActiveSection] = React.useState<"dashboard" | "docs">("dashboard");
+
   const [urlInput, setUrlInput] = React.useState("");
   const [scanning, setScanning] = React.useState(false);
   const [scanStep, setScanStep] = React.useState<string>("initiating");
   const [report, setReport] = React.useState<AIReadinessReport | null>(null);
   const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
   const [activeTab, setActiveTab] = React.useState<string>("overview");
+  const [visibilitySubTab, setVisibilitySubTab] = React.useState<"understanding" | "reasoning" | "compatibility">("understanding");
   const [simulatedScoreOffset, setSimulatedScoreOffset] = React.useState(0);
+  const [isTourOpen, setIsTourOpen] = React.useState(false);
+
+  // Auto-start Guided Tour on first successful scan
+  React.useEffect(() => {
+    if (report && localStorage.getItem("perceptiq-tour-completed") !== "true") {
+      setIsTourOpen(true);
+    }
+  }, [report]);
 
   const [history, setHistory] = React.useState<HistoryItem[]>(() => {
     const saved = localStorage.getItem("perceptiq-history");
@@ -172,10 +257,19 @@ export default function App() {
         onSelectHistory={handleSelectHistory}
         activeReportUrl={report?.url}
         onReset={handleReset}
+        activeSection={activeSection}
+        onNavigate={(sec) => {
+          setActiveSection(sec);
+        }}
+        onStartTour={() => setIsTourOpen(true)}
       />
 
       <main className="pb-24">
-        {!report ? (
+        {activeSection === "docs" ? (
+          <DocumentationView 
+            darkMode={darkMode} 
+          />
+        ) : !report ? (
           <LandingScanner
             darkMode={darkMode}
             urlInput={urlInput}
@@ -185,6 +279,64 @@ export default function App() {
             onScan={triggerScan}
             errorMsg={errorMsg}
           />
+        ) : report.scanStatus && report.scanStatus !== "SUCCESS" ? (
+          <div className="max-w-xl mx-auto px-4 sm:px-6 lg:px-8 mt-16 text-center space-y-6 animate-fade-in" id="error-screen">
+            <div className={`p-8 rounded-3xl border ${
+              darkMode ? "bg-slate-900/40 border-slate-800" : "bg-white border-slate-200 shadow-sm"
+            } space-y-6`}>
+              <div className="flex justify-center">
+                {report.scanStatus === "INVALID_DOMAIN" && (
+                  <div className="p-4 bg-rose-500/10 rounded-2xl border border-rose-500/20 text-rose-500 animate-pulse">
+                    <Globe className="h-10 w-10" />
+                  </div>
+                )}
+                {report.scanStatus === "LIMITED_PUBLIC_ACCESS" && (
+                  <div className="p-4 bg-amber-500/10 rounded-2xl border border-amber-500/20 text-amber-500">
+                    <Lock className="h-10 w-10" />
+                  </div>
+                )}
+                {report.scanStatus === "INSUFFICIENT_PUBLIC_EVIDENCE" && (
+                  <div className="p-4 bg-indigo-500/10 rounded-2xl border border-indigo-500/20 text-indigo-500">
+                    <FileWarning className="h-10 w-10" />
+                  </div>
+                )}
+                {report.scanStatus === "SCAN_FAILED" && (
+                  <div className="p-4 bg-slate-500/10 rounded-2xl border border-slate-500/20 text-slate-500">
+                    <AlertCircle className="h-10 w-10" />
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-3">
+                <h1 className={`text-xl sm:text-2xl font-display font-black tracking-tight ${
+                  darkMode ? "text-slate-100" : "text-slate-950"
+                }`}>
+                  {report.scanStatus === "INVALID_DOMAIN" && "Website Not Found"}
+                  {report.scanStatus === "LIMITED_PUBLIC_ACCESS" && "Limited Public Access"}
+                  {report.scanStatus === "INSUFFICIENT_PUBLIC_EVIDENCE" && "Not Enough Public Information"}
+                  {report.scanStatus === "SCAN_FAILED" && "Scan Failed"}
+                </h1>
+                <p className={`text-xs sm:text-sm leading-relaxed max-w-md mx-auto ${
+                  darkMode ? "text-slate-400" : "text-slate-600"
+                }`}>
+                  {report.scanStatus === "INVALID_DOMAIN" && "We couldn't find a publicly accessible website at this address. Please check the website address and try again."}
+                  {report.scanStatus === "LIMITED_PUBLIC_ACCESS" && "This website restricts automated access to its public content. Perceptiq AI only analyzes publicly accessible business information. Because sufficient public evidence could not be collected, no analysis has been generated."}
+                  {report.scanStatus === "INSUFFICIENT_PUBLIC_EVIDENCE" && "We couldn't find enough publicly available business information to generate a reliable analysis. Perceptiq AI only generates reports when sufficient public evidence can be verified."}
+                  {report.scanStatus === "SCAN_FAILED" && "The scan could not be completed. Please try again later."}
+                </p>
+              </div>
+
+              <div className="pt-2">
+                <button
+                  onClick={handleReset}
+                  className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-lg shadow-indigo-600/10 cursor-pointer transition-colors"
+                  id="error-screen-reset-btn"
+                >
+                  Scan Different Domain
+                </button>
+              </div>
+            </div>
+          </div>
         ) : (
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 space-y-6">
             {/* Active Report Header Dashboard */}
@@ -233,47 +385,104 @@ export default function App() {
               </div>
             </div>
 
-            {/* Premium Custom Tab Bar */}
-            <div className={`border-b flex flex-wrap gap-2 ${darkMode ? "border-slate-800" : "border-slate-200"}`}>
-              {[
-                { id: "overview", label: "Executive Dashboard", icon: Layers },
-                { id: "evidence", label: "Evidence Auditor", icon: ShieldCheck },
-                { id: "visibility", label: "AI Brand Perception", icon: TrendingUp },
-                { id: "explainability", label: "Interpretability WHY", icon: HelpCircle },
-                { id: "competitors", label: "Competitors", icon: BarChart3 },
-                { id: "improvements", label: "Improvement Center", icon: CheckSquare },
-                { id: "report", label: "One-Page Advisory Brief", icon: FileText },
-              ].map((tab) => {
-                const isActive = activeTab === tab.id;
-                const Icon = tab.icon;
-                return (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    id={`tab-btn-${tab.id}`}
-                    className={`px-4 py-3 text-xs font-semibold flex items-center space-x-2 border-b-2 -mb-[2px] transition-all cursor-pointer ${
-                      isActive
-                        ? "border-indigo-500 text-indigo-400"
-                        : darkMode
-                        ? "border-transparent text-slate-400 hover:text-slate-200 hover:border-slate-800"
-                        : "border-transparent text-slate-600 hover:text-slate-900 hover:border-slate-300"
-                    }`}
-                  >
-                    <Icon className="h-4 w-4" />
-                    <span>{tab.label}</span>
-                  </button>
-                );
-              })}
+            {/* Premium Grouped Enterprise Navigation System */}
+            <div className="space-y-4" id="grouped-enterprise-navigation">
+              {/* Category Groups (Row 1) */}
+              <div className={`p-1.5 rounded-xl border flex flex-wrap gap-1.5 ${
+                darkMode ? "bg-slate-900/40 border-slate-800" : "bg-white border-slate-200 shadow-sm"
+              }`}>
+                {[
+                  { id: "dashboard", label: "Dashboard", badge: "Strategic" },
+                  { id: "intelligence", label: "Intelligence", badge: "Layers" },
+                  { id: "insights", label: "Insights", badge: "Metrics" },
+                  { id: "evidence", label: "Evidence", badge: "Trace" },
+                  { id: "actions", label: "Actions", badge: "Remediation" }
+                ].map((group) => {
+                  const isCurrentGroup = getCategoryForTab(activeTab) === group.id;
+                  return (
+                    <button
+                      key={group.id}
+                      onClick={() => {
+                        if (group.id === "dashboard") setActiveTab("overview");
+                        else if (group.id === "intelligence") setActiveTab("knowledge");
+                        else if (group.id === "insights") setActiveTab("recommendation");
+                        else if (group.id === "evidence") setActiveTab("evidence");
+                        else if (group.id === "actions") setActiveTab("improvements");
+                      }}
+                      className={`px-4 py-1.5 text-xs font-bold rounded-lg flex items-center space-x-2 transition-all cursor-pointer ${
+                        isCurrentGroup
+                          ? "bg-indigo-600 text-white shadow-sm shadow-indigo-500/10"
+                          : darkMode
+                          ? "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
+                          : "text-slate-600 hover:text-slate-950 hover:bg-slate-100"
+                      }`}
+                    >
+                      <span>{group.label}</span>
+                      <span className={`text-[8px] font-mono font-bold uppercase px-1.5 py-0.2 rounded-md ${
+                        isCurrentGroup 
+                          ? "bg-indigo-500 text-indigo-100" 
+                          : darkMode ? "bg-slate-850 text-slate-500" : "bg-slate-200/60 text-slate-500"
+                      }`}>
+                        {group.badge}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Active Category's Sub-Tabs (Row 2) */}
+              <div className={`p-1 flex flex-wrap gap-2 border-b ${
+                darkMode ? "border-slate-800" : "border-slate-200"
+              }`}>
+                {navGroups
+                  .find((g) => g.id === getCategoryForTab(activeTab))
+                  ?.items.map((tab) => {
+                    const isActive = activeTab === tab.id;
+                    const Icon = tab.icon;
+                    return (
+                      <button
+                        key={tab.id}
+                        onClick={() => setActiveTab(tab.id)}
+                        id={`tab-btn-${tab.id}`}
+                        className={`px-3 py-2 text-xs font-bold flex items-center space-x-2 border-b-2 -mb-[1px] transition-all cursor-pointer ${
+                          isActive
+                            ? "border-indigo-500 text-indigo-400"
+                            : darkMode
+                            ? "border-transparent text-slate-400 hover:text-slate-200 hover:border-slate-800"
+                            : "border-transparent text-slate-600 hover:text-slate-950 hover:border-slate-300"
+                        }`}
+                      >
+                        <Icon className="h-4 w-4 shrink-0" />
+                        <span>{tab.label}</span>
+                      </button>
+                    );
+                  })}
+              </div>
             </div>
 
             {/* Staged Tab Content Modules */}
             <div className="mt-6">
+              {activeTab === "knowledge" && (
+                <KnowledgeMap 
+                  report={report} 
+                  darkMode={darkMode} 
+                />
+              )}
+
               {activeTab === "evidence" && (
                 <EvidenceAuditor 
                   darkMode={darkMode} 
                   evidence={report.evidence} 
                   companyName={report.companyName}
                   url={report.url}
+                />
+              )}
+
+              {activeTab === "validation" && (
+                <ValidationDashboard 
+                  darkMode={darkMode} 
+                  report={report}
+                  simulatedScoreOffset={simulatedScoreOffset}
                 />
               )}
 
@@ -286,19 +495,83 @@ export default function App() {
                 />
               )}
 
+              {activeTab === "decision" && (
+                <DecisionDashboard
+                  report={report}
+                  darkMode={darkMode}
+                />
+              )}
+
               {activeTab === "visibility" && (
                 <div className="space-y-6">
-                  <div className={`p-4 rounded-xl border flex items-center space-x-3 text-xs ${
-                    darkMode ? "bg-indigo-500/10 border-indigo-500/20 text-indigo-300" : "bg-indigo-50 border-indigo-100 text-indigo-950"
-                  }`}>
-                    <ShieldCheck className="h-5 w-5 text-indigo-400 shrink-0" />
-                    <div>
-                      <strong className="block font-bold">Visibility Estimations Locked</strong>
-                      <span className="opacity-80">This module is currently awaiting Sprint 5 Confidence & Visibility Model Integration.</span>
-                    </div>
+                  {/* Sub Tab Switcher */}
+                  <div className={`flex border-b ${darkMode ? "border-slate-800" : "border-slate-200"}`}>
+                    <button
+                      onClick={() => setVisibilitySubTab("understanding")}
+                      className={`px-4 py-2.5 text-xs font-bold border-b-2 -mb-[2px] transition-all cursor-pointer ${
+                        visibilitySubTab === "understanding"
+                          ? "border-indigo-500 text-indigo-400"
+                          : darkMode
+                          ? "border-transparent text-slate-400 hover:text-slate-200"
+                          : "border-transparent text-slate-600 hover:text-slate-900"
+                      }`}
+                    >
+                      AI Understanding Map (Perception Engine)
+                    </button>
+                    <button
+                      onClick={() => setVisibilitySubTab("reasoning")}
+                      className={`px-4 py-2.5 text-xs font-bold border-b-2 -mb-[2px] transition-all cursor-pointer ${
+                        visibilitySubTab === "reasoning"
+                          ? "border-indigo-500 text-indigo-400"
+                          : darkMode
+                          ? "border-transparent text-slate-400 hover:text-slate-200"
+                          : "border-transparent text-slate-600 hover:text-slate-900"
+                      }`}
+                    >
+                      AI Cognitive Reasoning (How AI Thinks)
+                    </button>
+                    <button
+                      onClick={() => setVisibilitySubTab("compatibility")}
+                      className={`px-4 py-2.5 text-xs font-bold border-b-2 -mb-[2px] transition-all cursor-pointer ${
+                        visibilitySubTab === "compatibility"
+                          ? "border-indigo-500 text-indigo-400"
+                          : darkMode
+                          ? "border-transparent text-slate-400 hover:text-slate-200"
+                          : "border-transparent text-slate-600 hover:text-slate-900"
+                      }`}
+                    >
+                      Platform Compatibility Profile
+                    </button>
                   </div>
-                  <VisibilityCard darkMode={darkMode} visibility={report.visibility} />
+
+                  {visibilitySubTab === "understanding" ? (
+                    <PerceptionDashboard 
+                      report={report} 
+                      darkMode={darkMode} 
+                    />
+                  ) : visibilitySubTab === "reasoning" ? (
+                    <ReasoningDashboard
+                      report={report}
+                      darkMode={darkMode}
+                    />
+                  ) : (
+                    <VisibilityCard darkMode={darkMode} visibility={report.visibility} />
+                  )}
                 </div>
+              )}
+
+              {activeTab === "recommendation" && (
+                <RecommendationDashboard 
+                  report={report} 
+                  darkMode={darkMode} 
+                />
+              )}
+
+              {activeTab === "trust" && (
+                <TrustDashboard 
+                  report={report} 
+                  darkMode={darkMode} 
+                />
               )}
 
               {activeTab === "explainability" && (
@@ -306,89 +579,48 @@ export default function App() {
                   {report.explanation ? (
                     <AiExplanationView darkMode={darkMode} explanation={report.explanation} />
                   ) : (
-                    <>
-                      <div className={`p-4 rounded-xl border flex items-center space-x-3 text-xs ${
-                        darkMode ? "bg-indigo-500/10 border-indigo-500/20 text-indigo-300" : "bg-indigo-50 border-indigo-100 text-indigo-950"
-                      }`}>
-                        <ShieldCheck className="h-5 w-5 text-indigo-400 shrink-0" />
-                        <div>
-                          <strong className="block font-bold">Interpretability Explainers Offline</strong>
-                          <span className="opacity-80">This module has gracefully fell back to high-fidelity deterministic explanations.</span>
-                        </div>
-                      </div>
-                      <ExplainabilityCard darkMode={darkMode} explainability={report.explainability} />
-                    </>
+                    <ExplainabilityCard darkMode={darkMode} explainability={report.explainability} />
                   )}
                 </div>
               )}
 
               {activeTab === "competitors" && (
-                <div className="space-y-6">
-                  <div className={`p-4 rounded-xl border flex items-center space-x-3 text-xs ${
-                    darkMode ? "bg-indigo-500/10 border-indigo-500/20 text-indigo-300" : "bg-indigo-50 border-indigo-100 text-indigo-950"
-                  }`}>
-                    <ShieldCheck className="h-5 w-5 text-indigo-400 shrink-0" />
-                    <div>
-                      <strong className="block font-bold">Competitor Benchmarks Locked</strong>
-                      <span className="opacity-80">This module is currently awaiting Sprint 4 competitor indexing models.</span>
-                    </div>
-                  </div>
-                  <CompetitorBenchmark
-                    darkMode={darkMode}
-                    companyName={report.companyName}
-                    myScores={{
-                      aiReadiness: typeof currentOverallScore === "number" ? currentOverallScore : 0,
-                      trust: typeof currentBreakdown.trustSignals === "number" ? currentBreakdown.trustSignals : 0,
-                      content: typeof currentBreakdown.contentQuality === "number" ? currentBreakdown.contentQuality : 0,
-                      visibility: typeof report.executiveSummary.estimatedVisibility === "number" ? report.executiveSummary.estimatedVisibility : 0,
-                      productInfo: typeof currentBreakdown.productCompleteness === "number" ? currentBreakdown.productCompleteness : 0,
-                      recommendationProbability: typeof report.executiveSummary.recommendationProbability === "number" ? report.executiveSummary.recommendationProbability : 0,
-                    }}
-                    initialCompetitors={report.competitors}
-                  />
-                </div>
+                <CompetitiveDashboard
+                  darkMode={darkMode}
+                  report={report}
+                  onUpdateCompetitors={(updated) => {
+                    setReport({
+                      ...report,
+                      competitors: updated
+                    });
+                  }}
+                />
               )}
 
               {activeTab === "improvements" && (
-                <div className="space-y-6">
-                  <div className={`p-4 rounded-xl border flex items-center space-x-3 text-xs ${
-                    darkMode ? "bg-indigo-500/10 border-indigo-500/20 text-indigo-300" : "bg-indigo-50 border-indigo-100 text-indigo-950"
-                  }`}>
-                    <ShieldCheck className="h-5 w-5 text-indigo-400 shrink-0" />
-                    <div>
-                      <strong className="block font-bold">Action Recommendations Locked</strong>
-                      <span className="opacity-80">This module is currently awaiting Sprint 6 strategic checklists mapping.</span>
-                    </div>
-                  </div>
-                  <ImprovementCenter
-                    darkMode={darkMode}
-                    recommendations={report.recommendations}
-                    onSimulateFix={handleSimulateFix}
-                  />
-                </div>
+                <ImprovementCenter
+                  darkMode={darkMode}
+                  recommendations={report.recommendations}
+                  onSimulateFix={handleSimulateFix}
+                  report={report}
+                />
+              )}
+
+              {activeTab === "progress" && (
+                <ProgressTimeline
+                  darkMode={darkMode}
+                  report={report}
+                  simulatedScoreOffset={simulatedScoreOffset}
+                />
               )}
 
               {activeTab === "report" && (
                 <div className="space-y-6">
-                  <div className={`p-4 rounded-xl border flex items-center space-x-3 text-xs ${
-                    darkMode ? "bg-indigo-500/10 border-indigo-500/20 text-indigo-300" : "bg-indigo-50 border-indigo-100 text-indigo-950"
-                  }`}>
-                    <ShieldCheck className="h-5 w-5 text-indigo-400 shrink-0" />
-                    <div>
-                      <strong className="block font-bold">One-Page Brief Pending Scoring</strong>
-                      <span className="opacity-80">Executive advisory output is currently waiting for downstream Sprint 4 Scoring pipelines.</span>
-                    </div>
-                  </div>
                   <ExecutiveReport
                     darkMode={darkMode}
-                    companyName={report.companyName}
-                    url={report.url}
-                    scannedAt={report.scannedAt}
-                    summary={{
-                      ...report.executiveSummary,
-                      overallScore: currentOverallScore,
-                    }}
-                    crawlStats={report.crawlStats}
+                    report={report}
+                    score={currentOverallScore}
+                    breakdown={currentBreakdown}
                   />
                 </div>
               )}
@@ -411,6 +643,12 @@ export default function App() {
           </span>
         </div>
       </footer>
+
+      <ProductTour
+        darkMode={darkMode}
+        isOpen={isTourOpen}
+        onClose={() => setIsTourOpen(false)}
+      />
     </div>
   );
 }

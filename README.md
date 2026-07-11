@@ -1,176 +1,128 @@
-# Perceptiq AI — AI Brand Perception Analyzer (v1.0 RC)
+# Perceptiq AI
 
-Perceptiq AI is an AI Brand Perception Analyzer that evaluates how conversational AI systems can understand, interpret, and evaluate publicly accessible business information using deterministic evidence-based analysis. It is designed for business leaders, brand managers, marketing executives, and digital transformation teams to diagnose, measure, and optimize their public digital presence for modern AI-driven search models, automated assistants, and conversational search platforms.
-
-Instead of traditional keyword-focused SEO crawlers, Perceptiq AI acts as an **AI Search Audit Engine**. It performs deep diagnostic sweeps across public digital channels to trace, verify, and score a brand's discoverability and readability by large language models (LLMs).
+Perceptiq AI is a simple, modern tool that checks how well AI search engines (like ChatGPT, Gemini, and Perplexity) can understand and find your business website. It scans your site, highlights where search engines might get confused, and gives you clear, step-by-step instructions to improve your brand's AI search visibility.
 
 ---
 
-## 1. System Architecture Overview
+## 💡 What is Perceptiq AI?
 
-Perceptiq AI is structured as a robust, full-stack, decoupled architecture utilizing a lightweight Node.js Express server acting as the secure proxy and crawler hub, and a high-fidelity client-side dashboard powered by React, TypeScript, and Tailwind CSS.
+When people search for your business using AI search tools or smart assistants, these systems crawl the web to find answers. If your website has missing metadata, confusing pricing, or hard-to-find contact info, the AI might give incorrect answers or leave your brand out of the recommendations entirely.
 
-### System Architecture Flow
-```
-[ User Input / Domain URL ]
-             │
-             ▼
-┌───────────────────────────┐
-│     React Client UI       │ <─── Port 3000 (Proxy Target)
-└────────────┬──────────────┘
-             │ (POST /api/scan)
-             ▼
-┌───────────────────────────┐
-│   Express Backend Proxy   │ <─── Sanitizes, rate-limits & proxies requests
-└────────────┬──────────────┘
-             ├────────────────────────────────────────┐
-             ▼                                        ▼
-┌───────────────────────────┐             ┌───────────────────────────┐
-│   Deterministic Crawler   │             │   Gemini 1.5 Flash SDK   │
-│   (HTML/Metadata Parser)  │             │   (AI Explanation Layer)  │
-└────────────┬──────────────┘             └───────────▲───────────────┘
-             │                                        │ (Feeds structured
-             ▼ (Structured Output)                    │  findings only)
-┌───────────────────────────┐                         │
-│  Scoring & Confidence Eng │ ────────────────────────┘
-└───────────────────────────┘
-```
-
-### Component Hierarchy (Client Layer)
-*   **App.tsx** (Global Workspace Context, App Shell, & Scan State Coordinator)
-    *   **Header.tsx** (Identity Brand & Dark-Mode Toggles)
-    *   **LandingScanner.tsx** (Input Portal & Multi-Stage Real-Time Progress Visualizer)
-    *   **ExecutiveDashboardView.tsx** (01. Executive Overview, 02. Category Breakdown, 03. Traceability Audit, 04. Prioritized Recommendations, 05. AI Strategic Narrative, 06. Boundaries Disclosure)
-    *   **EvidenceAuditor.tsx** (Granular Source Code Traceability Viewer)
-    *   **VisibilityCard.tsx** (AI Assistant Persona Benchmark Simulator)
-    *   **ExplainabilityCard.tsx** / **AiExplanationView.tsx** (Technical Explanations & Semantic Gap Diagnostics)
-    *   **CompetitorBenchmark.tsx** (Corporate Benchmarking Indicators)
-    *   **ImprovementCenter.tsx** (Active Fix Simulation Sandbox)
+Perceptiq AI scans your website to find these exact gaps and gives you an actionable score with practical recommendations to fix them.
 
 ---
 
-## 2. Folder Structure
+## 🌟 Key Features
 
-```
-├── .env.example              # Template for server-side environments and API secrets
-├── .gitignore                # Specifies intentionally untracked files
-├── index.html                # Entry HTML mount point
-├── package.json              # System configuration and script dependencies
-├── server.ts                 # Full-stack developer-mode server entry point
-├── tsconfig.json             # TypeScript compiler settings
-├── vite.config.ts            # Vite bundler configuration
-│
-├── server/                   # Backend API and Crawler Engine
-│   ├── confidence.ts         # Math logic calculating evidence coverage & source flags
-│   ├── crawler.ts            # High-performance HTML scraper & microdata extractor
-│   ├── evidenceCollector.ts  # Verification map matching elements to trust schemas
-│   ├── explanation.ts        # Corporate AI-driven Consulting Translation Proxy
-│   ├── gemini.ts             # Base Gemini API Client setup and helper utilities
-│   ├── routes.ts             # Express Router defining endpoint limits and endpoints
-│   ├── scoring.ts            # Safe, deterministic, verifiable weight scores
-│   ├── types.ts              # Global backend interface schema definitions
-│   ├── utils.ts              # General internal helper libraries
-│   └── validator.ts          # Input domain security validators
-│
-└── src/                      # High-Fidelity Client-Side Application
-    ├── App.tsx               # Main container coordinate and state manager
-    ├── index.css             # Unified global CSS with corporate styling guidelines
-    ├── main.tsx              # React DOM entry mount
-    ├── types.ts              # Client types matching backend schema
-    └── components/           # Modularized UI Components
-        ├── AiExplanationView.tsx
-        ├── CompetitorBenchmark.tsx
-        ├── EvidenceAuditor.tsx
-        ├── ExecutiveDashboardView.tsx
-        ├── ExecutiveReport.tsx
-        ├── ExplainabilityCard.tsx
-        ├── Header.tsx
-        ├── ImprovementCenter.tsx
-        ├── LandingScanner.tsx
-        ├── ReadinessScoreCard.tsx
-        └── VisibilityCard.tsx
+### 🌐 AI Intelligence & Advice
+*   **Executive Summaries**: Translates technical web scans into easy-to-read business reports using Gemini AI.
+*   **Gaps & Diagnostics**: Flags missing information on your site that AI search engines look for.
+
+### 🛠️ Interactive Fix Sandbox
+*   **Live Preview Simulator**: Toggle simulated fixes (like adding a Privacy Policy or structured FAQ) to instantly see how your score would improve.
+*   **Priority Roadmap**: Lists what to fix first, with simple technical instructions for each task.
+
+### 🔍 Verification & Evidence
+*   **Traceable Evidence**: Shows the exact HTML code and text found on your site, proving why a specific score was given.
+*   **Strict Scoring**: Scores are based strictly on real evidence found on your site—no guessing or fluctuating numbers.
+
+### 📊 Competitive Intelligence
+*   **Side-by-Side Benchmark**: See how your website compares with your competitors across AI readiness dimensions.
+*   **Market Trends**: Visualizes where competitors are doing better so you can capture missing search traffic.
+
+---
+
+## ⚙️ How It Works
+
+1. **Enter URL**: Type in your business website address on the homepage.
+2. **Scan**: The crawler reads your website's pages, headers, links, and structured metadata.
+3. **Score**: The scoring engine calculates your rating based purely on what it successfully found on your site.
+4. **Translate**: Gemini AI writes a clear, non-technical explanation of the results and highlights key improvements.
+5. **Explore**: Drill down into detailed dashboards to simulate improvements, audit code evidence, and compare with competitors.
+
+---
+
+## 🛠️ Technology Stack
+
+*   **Frontend**: React, Vite, Tailwind CSS, Lucide Icons, Recharts (for charts), and Motion (for clean animations).
+*   **Backend**: Node.js, Express, and esbuild (for fast production bundling).
+*   **AI Engine**: Google Gen AI SDK (`gemini-3.5-flash`) with automatic, high-fidelity offline fallbacks.
+
+---
+
+## 📁 Project Structure
+
+*   `server/` — Scraper, scoring logic, AI prompt templates, and API endpoints.
+*   `src/` — Visual dashboards, interactive chart widgets, and user controls.
+*   `server.ts` — Full-stack entry point.
+
+---
+
+## 🚀 Quick Start
+
+### 1. Install Dependencies
+```bash
+npm install
 ```
 
----
-
-## 3. Technology Stack
-
-*   **Runtime Environment**: Node.js (v18+)
-*   **Framework**: React 18 with Vite Bundler
-*   **Programming Language**: TypeScript (with strict non-nullable checks)
-*   **Styling**: Tailwind CSS (Optimized, responsive utility framework)
-*   **Iconography**: Lucide React
-*   **AI Engine**: Google Gen AI SDK (`@google/genai`)
-*   **Development Tools**: `tsx` (TypeScript Execution tool), `esbuild` (Production Bundle Compiler)
-
----
-
-## 4. Engineering Philosophies
-
-### Scoring Philosophy (Deterministic Scoring)
-Traditional tools rely on arbitrary, volatile black-box search engines. Perceptiq AI calculates scores **deterministically** based entirely on explicit, verified business credentials found directly within the website's crawler index. 
-Every category (AI Understanding, Business Presence, Website Reliability, Business Trust, Customer Support) has standard weights. If a piece of evidence is missing, the category score scales down in an auditable, mathematical ratio. This guarantees that scores are reproducible and completely free of speculation.
-
-### Evidence Philosophy (Traceability Audit)
-An intelligence audit is useless without verifiable proof. Every item in our database is strictly categorized:
-1.  **Verified (Success/Found)**: Located, parsed, and logged at an explicit page path with proof of source content.
-2.  **Missing (Not Found/Failed)**: Explicitly crawled but returned no trace of relevant structural data or semantic content.
-3.  **Unknown**: Outside the boundaries of the crawl limit or diagnostic configuration. This is treated as unverified rather than a system failure.
-
-### Confidence Philosophy (Coverage Ratio)
-We separate **Readiness** from **Confidence**. A brand might have an optimal structured profile, but if it is backed by extremely limited or single-page crawls, the confidence is low. 
-The Confidence Index is computed as a factor of evidence coverage, source path diversity, and the completeness ratio of trust signals.
-
-### AI Explanation Philosophy (The McKinsey Standard)
-The Gemini API is integrated **not** to speculate, invent scores, or make unsupported claims, but to translate raw, technical findings into clear, executive business insights. 
-*   **Absolute Compliance Constraint**: Expected improvements from recommended actions *never* contain simulated percentages, rankings, or arbitrary financial metrics (e.g., "Will increase revenue by 20%"). Instead, they utilize conservative, evidence-based advisory language (e.g., "May improve recommendation consistency across AI search engines").
-*   **Clear Disclaimers**: It is clearly declared that the strategic narrative is an AI-generated synthesis based solely on collected public indicators.
-
----
-
-## 5. Installation & Setup Guide
-
-### Environment Variables
-Define a `.env` file in the root directory. You can copy `.env.example` as a template:
-
+### 2. Configure Settings
+Create a `.env` file in the root folder:
 ```env
 PORT=3000
 GEMINI_API_KEY=your_gemini_api_key_here
 ```
-*Note: If `GEMINI_API_KEY` is not provided, the system gracefully disables the executive AI explanation panel while keeping 100% of the deterministic scoring, confidence metrics, and auditing dashboards fully functional.*
+*(Note: If you do not provide a Gemini key, the app will automatically use its offline smart backup to generate high-quality recommendations.)*
 
-### Running Locally (Development Mode)
-To install dependencies and start the local development server:
-
+### 3. Run the App
+To start the app in development mode:
 ```bash
-# 1. Install project dependencies
-npm install
-
-# 2. Run the full-stack development environment
 npm run dev
 ```
-The application will boot a unified server on `http://localhost:3000`.
+Then open **`http://localhost:3000`** in your browser.
 
-### Building and Running in Production
-The application compiles both client and server assets into a self-contained, optimized build inside the `dist/` folder:
-
+To build and run in production:
 ```bash
-# 1. Compile client assets and bundle backend TypeScript using esbuild
 npm run build
-
-# 2. Start the production-ready compiled CommonJS server
-npm run start
+npm start
 ```
 
 ---
 
-## 6. Known Limitations & Roadmap
+## 📜 Our Product Philosophy
 
-### Known Limitations
-*   **Public Access Only**: The crawling engine only scans publicly visible, unauthenticated HTML. Private enterprise systems, backend operational catalogs, or gated subscriber zones remain out-of-scope.
-*   **Javascript-Heavy Hydration**: Some extremely modern Single-Page Applications that hydrate 100% of their content client-side via complex asynchronous framework chains may return lower initial index rates.
+*   **Evidence First**: Every score must be backed by real, found evidence on the website.
+*   **Transparency**: No arbitrary or fluctuating scores.
+*   **Explainability**: Helping you understand *why* your site scored the way it did is more important than just showing a high number.
 
-### Future Roadmap (Version 1.1)
-*   **Multi-Domain Comparisons**: Side-by-side comparative readiness reports for multiple competitor domains.
-*   **Recursive Deep Sweeps**: Deeper crawling structures down to 5+ path layers for large-scale enterprise websites.
-*   **Structured Metadata Exporter**: Single-click copyable JSON-LD and microdata snippets custom-tailored to resolve the exact gaps identified in the priority improvements view.
+---
+
+## Evidence-First Analysis
+
+Perceptiq AI operates on a strict, evidence-based approach to ensure transparency and integrity across all reports and recommendations.
+
+### Core Principles
+
+*   **Public Access Only**: Perceptiq AI only analyzes publicly accessible business information.
+*   **Verified Evidence**: Every score, insight, recommendation, and explanation is generated solely from verified public evidence collected during the live scan.
+*   **No Speculation**: The platform never invents, estimates, or fabricates missing business information.
+*   **No Access, No Report**: If a website blocks automated access (for example, through bot protection, restricted public access, or firewalls), Perceptiq AI does not generate a report because sufficient evidence cannot be verified.
+*   **Sufficient Information Threshold**: If a website does not contain enough publicly available business information to produce a reliable analysis, the platform terminates the scan instead of presenting unreliable or artificial scores.
+*   **Transparency First**: Honest, evidence-based data representation is always preferred over speculative estimation. If there is no evidence, there is no report.
+
+> Perceptiq AI is designed to prioritize accuracy and explainability over completeness. When sufficient verified public information cannot be collected, the platform informs the user rather than generating speculative results.
+
+### Why This Matters
+
+This strict policy ensures that our assessments are trustworthy, highly accurate, and directly actionable. By avoiding assumptions or simulated fillings, we prevent misleading business evaluations and build confidence in AI-driven search auditing, fully aligning with modern explainable AI (XAI) principles.
+
+---
+
+## Analysis Disclaimer
+
+Perceptiq AI evaluates only publicly accessible business information. If a website restricts automated access or does not provide enough verifiable public information, the platform will not generate an analysis. This ensures that all insights, scores, and recommendations remain evidence-based, transparent, and explainable.
+
+---
+
+## ⚖️ License
+
+Distributed under the **MIT License**.

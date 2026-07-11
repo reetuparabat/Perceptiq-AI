@@ -202,18 +202,77 @@ export interface AIReadinessReport {
   url: string;
   companyName: string;
   scannedAt: string;
-  overallScore: number | string;
-  crawlStats: CrawlStats;
-  scoreBreakdown: ScoreBreakdown;
-  visibility: VisibilityMetrics;
-  explainability: Explainability;
+  scanStatus?: "SUCCESS" | "LIMITED_PUBLIC_ACCESS" | "INVALID_DOMAIN" | "INSUFFICIENT_PUBLIC_EVIDENCE" | "SCAN_FAILED";
+  overallScore: number | string | null;
+  crawlStats: CrawlStats | null;
+  scoreBreakdown: ScoreBreakdown | null;
+  visibility: VisibilityMetrics | null;
+  explainability: Explainability | null;
   competitors: Competitor[];
   recommendations: Recommendation[];
-  executiveSummary: ExecutiveSummary;
-  evidence?: EvidenceModel; // Sprint 3 Evidence
-  evidenceCoverage?: number; // Sprint 4 Refinement Evidence Coverage metric
-  confidence?: ConfidenceResponse; // Sprint 5 Confidence Engine output
-  explanation?: ExplanationResponse; // Sprint 6 AI Business Explanation
+  executiveSummary: ExecutiveSummary | null;
+  evidence?: EvidenceModel | null; // Sprint 3 Evidence
+  evidenceCoverage?: number | null; // Sprint 4 Refinement Evidence Coverage metric
+  confidence?: ConfidenceResponse | null; // Sprint 5 Confidence Engine output
+  explanation?: ExplanationResponse | null; // Sprint 6 AI Business Explanation
+  knowledgeIntelligence?: KnowledgeIntelligence | null; // Version 2 Sprint 1 Knowledge Intelligence
+}
+
+export interface KnowledgeSource {
+  id: string;
+  type: "page" | "structured_data" | "metadata" | "open_graph" | "twitter_card" | "canonical_url" | "sitemap" | "robots_txt" | "internal_links" | "external_references";
+  name: string;
+  url?: string;
+  status: "available" | "missing" | "unverified";
+  details: string;
+}
+
+export interface NormalizedEntity {
+  id: string;
+  type: "Organization" | "Product" | "Service" | "Location" | "Person" | "FAQ" | "Category" | "ContactInfo" | "SocialProfile";
+  name: string;
+  aliases: string[];
+  properties: Record<string, any>;
+  relationships: string[];
+  source: string;
+  confidence: number;
+  evidence: string;
+  lastFound: string;
+  consistency: "Consistent" | "Inconsistent" | "Contradictory" | "High" | "Medium";
+}
+
+export interface KnowledgeGraphNode {
+  id: string;
+  label: string;
+  type: "Organization" | "Product" | "Service" | "Location" | "Person" | "FAQ" | "Category" | "ContactInfo" | "SocialProfile" | "Source";
+  valency?: number;
+}
+
+export interface KnowledgeGraphEdge {
+  id: string;
+  source: string;
+  target: string;
+  label: string;
+}
+
+export interface KnowledgeGraph {
+  nodes: KnowledgeGraphNode[];
+  edges: KnowledgeGraphEdge[];
+}
+
+export interface MissingKnowledgeItem {
+  id: string;
+  title: string;
+  description: string;
+  importance: "High" | "Medium" | "Low";
+  impact: string;
+}
+
+export interface KnowledgeIntelligence {
+  sources: KnowledgeSource[];
+  entities: NormalizedEntity[];
+  graph: KnowledgeGraph;
+  missingKnowledge: MissingKnowledgeItem[];
 }
 
 export interface CategoryConfidence {

@@ -373,13 +373,13 @@ export function calculateReadinessReport(evidence: EvidenceModel, targetUrl: str
   const specsFound = evidence.productSpecifications.status === "Found";
 
   // Build the breakdown categories expected by the dashboard card, mapped elegantly:
-  let structuredData: number | "Unknown" = "Unknown";
+  let structuredData: number | null = null;
   if (scoreResult.categories.aiAccessibility.status === "Known" && typeof scoreResult.categories.aiAccessibility.score === "number") {
     structuredData = Math.round((scoreResult.categories.aiAccessibility.score / scoreResult.categories.aiAccessibility.maximum) * 100);
   }
 
   // "Technical Health" -> "Website Reliability"
-  let technicalHealth: number | "Unknown" = "Unknown";
+  let technicalHealth: number | null = null;
   const crawledPages = evidence.pagesCrawled;
   if (crawledPages && crawledPages.length > 0) {
     const successCount = crawledPages.filter(p => p.status === "Success").length;
@@ -390,31 +390,31 @@ export function calculateReadinessReport(evidence: EvidenceModel, targetUrl: str
   // Task 5 requirement: Replace 'Unknown' with 'Not Evaluated' for items outside the Version 1 scope.
   const authority: number | string = "Not Evaluated";
 
-  let productCompleteness: number | "Unknown" = "Unknown";
+  let productCompleteness: number | null = null;
   if (scoreResult.categories.productInformation.status === "Known" && typeof scoreResult.categories.productInformation.score === "number") {
     productCompleteness = Math.round((scoreResult.categories.productInformation.score / scoreResult.categories.productInformation.maximum) * 100);
   }
 
-  let trustSignals: number | "Unknown" = "Unknown";
+  let trustSignals: number | null = null;
   if (scoreResult.categories.businessTrust.status === "Known" && typeof scoreResult.categories.businessTrust.score === "number") {
     trustSignals = Math.round((scoreResult.categories.businessTrust.score / scoreResult.categories.businessTrust.maximum) * 100);
   }
 
-  let contentQuality: number | "Unknown" = "Unknown";
+  let contentQuality: number | null = null;
   if (scoreResult.categories.customerSupport.status === "Known" && typeof scoreResult.categories.customerSupport.score === "number") {
     contentQuality = Math.round((scoreResult.categories.customerSupport.score / scoreResult.categories.customerSupport.maximum) * 100);
   }
 
-  let aiReadability: number | "Unknown" = "Unknown";
+  let aiReadability: number | null = null;
   if (scoreResult.categories.aiAccessibility.status === "Known" && typeof scoreResult.categories.aiAccessibility.score === "number") {
     aiReadability = Math.round((scoreResult.categories.aiAccessibility.score / scoreResult.categories.aiAccessibility.maximum) * 100);
   }
 
   // Compile Platform Visibility metrics
-  const chatgptScore = typeof overallScoreVal === "number" ? Math.min(100, overallScoreVal + 2) : "Unknown";
-  const geminiScore = typeof overallScoreVal === "number" ? Math.max(0, overallScoreVal - 3) : "Unknown";
-  const claudeScore = typeof overallScoreVal === "number" ? Math.min(100, overallScoreVal + 4) : "Unknown";
-  const perplexityScore = typeof overallScoreVal === "number" ? Math.max(0, overallScoreVal - 1) : "Unknown";
+  const chatgptScore = typeof overallScoreVal === "number" ? Math.min(100, overallScoreVal + 2) : null;
+  const geminiScore = typeof overallScoreVal === "number" ? Math.max(0, overallScoreVal - 3) : null;
+  const claudeScore = typeof overallScoreVal === "number" ? Math.min(100, overallScoreVal + 4) : null;
+  const perplexityScore = typeof overallScoreVal === "number" ? Math.max(0, overallScoreVal - 1) : null;
 
   const faqCount = evidence.faqQuestions.value ? evidence.faqQuestions.value.length : 0;
   const productCount = evidence.productTitles.value ? evidence.productTitles.value.length : 0;
@@ -608,25 +608,25 @@ export function calculateReadinessReport(evidence: EvidenceModel, targetUrl: str
     visibility: {
       chatgpt: {
         score: chatgptScore,
-        likelihood: typeof chatgptScore === "number" ? getLikelihood(chatgptScore) : "Unknown",
+        likelihood: typeof chatgptScore === "number" ? getLikelihood(chatgptScore) : "Not Evaluated",
         strengths: ["Clear primary navigation layout", "Highly readable paragraphs"],
         weaknesses: category === "E-commerce" && !specsFound ? ["Missing detailed catalog variables, blocking direct comparison matching"] : ["No critical blockers"]
       },
       gemini: {
         score: geminiScore,
-        likelihood: typeof geminiScore === "number" ? getLikelihood(geminiScore) : "Unknown",
+        likelihood: typeof geminiScore === "number" ? getLikelihood(geminiScore) : "Not Evaluated",
         strengths: ["Secure domain certificate", "Legitimate physical location details"],
         weaknesses: faqCount === 0 ? ["Lack of pre-purchase answers reduces confidence in matching customer queries"] : ["No critical blockers"]
       },
       claude: {
         score: claudeScore,
-        likelihood: typeof claudeScore === "number" ? getLikelihood(claudeScore) : "Unknown",
+        likelihood: typeof claudeScore === "number" ? getLikelihood(claudeScore) : "Not Evaluated",
         strengths: ["Natural paragraph layout", "Highly descriptive brand statements"],
         weaknesses: typeof trustSignals !== "number" || trustSignals < 50 ? ["Absence of refund terms reduces purchase recommendation scores"] : ["No critical blockers"]
       },
       perplexity: {
         score: perplexityScore,
-        likelihood: typeof perplexityScore === "number" ? getLikelihood(perplexityScore) : "Unknown",
+        likelihood: typeof perplexityScore === "number" ? getLikelihood(perplexityScore) : "Not Evaluated",
         strengths: ["Fast response times", "Active status codes"],
         weaknesses: ["Under-represented business presence (brand mentions are Not Evaluated)"]
       }
@@ -688,8 +688,8 @@ export function calculateReadinessReport(evidence: EvidenceModel, targetUrl: str
       overallScore: overallScoreVal,
       topProblems: topProblems.slice(0, 3),
       quickWins: quickWins.slice(0, 3),
-      estimatedVisibility: typeof overallScoreVal === "number" ? Math.round(overallScoreVal * 0.95) : "Unknown",
-      recommendationProbability: typeof overallScoreVal === "number" ? Math.round(overallScoreVal * 0.9) : "Unknown",
+      estimatedVisibility: typeof overallScoreVal === "number" ? Math.round(overallScoreVal * 0.95) : null,
+      recommendationProbability: typeof overallScoreVal === "number" ? Math.round(overallScoreVal * 0.9) : null,
       nextSteps: [
         "Synthesize deterministic score results to construct targeted context pages.",
         "Awaiting downstream models for real-time validation checks."

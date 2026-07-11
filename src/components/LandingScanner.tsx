@@ -85,15 +85,17 @@ export default function LandingScanner({
               onChange={(e) => setUrlInput(e.target.value)}
               disabled={scanning}
               placeholder="Enter your product website URL (e.g. stripe.com)"
-              className="w-full pl-11 pr-4 py-4 bg-transparent outline-none text-base border-0 focus:ring-0 focus:outline-none placeholder-slate-500 font-sans"
+              className="w-full pl-11 pr-4 py-4 bg-transparent outline-none text-base border-0 focus:ring-2 focus:ring-indigo-500 focus:rounded-xl placeholder-slate-500 font-sans transition-all"
               id="scanner-url-input"
+              aria-label="Target Website URL for AI Audit"
             />
           </div>
           <button
             type="submit"
             disabled={scanning || !urlInput.trim()}
             id="start-audit-btn"
-            className="w-full sm:w-auto px-6 py-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-base shadow-sm disabled:opacity-50 flex items-center justify-center space-x-2 transition-all cursor-pointer"
+            aria-label="Start AI Audit Analysis"
+            className="w-full sm:w-auto px-6 py-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-base shadow-sm disabled:opacity-50 flex items-center justify-center space-x-2 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
           >
             {scanning ? (
               <>
@@ -109,15 +111,59 @@ export default function LandingScanner({
           </button>
         </form>
       </div>
-
-      {/* Error Message */}
+ 
+      {/* Actionable Non-Technical Error Message (Feature 8) */}
       {errorMsg && (
-        <div className="mt-4 p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-start space-x-3 text-xs text-rose-400">
-          <AlertCircle className="h-4.5 w-4.5 shrink-0 mt-0.5" />
-          <div>
-            <p className="font-semibold">Scan Failure Detected</p>
-            <p className="opacity-90 mt-0.5">{errorMsg}</p>
-          </div>
+        <div className="mt-4 p-6 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex flex-col space-y-4 text-rose-400">
+          {errorMsg === "Analysis Couldn't Be Completed" ? (
+            <div className="space-y-4">
+              <div className="flex items-center space-x-3 text-rose-400">
+                <AlertCircle className="h-6 w-6 shrink-0" />
+                <h3 className="font-display font-bold text-lg text-rose-200">Analysis Couldn't Be Completed</h3>
+              </div>
+              <div className="space-y-3 text-sm text-slate-300 leading-relaxed font-sans">
+                <p>
+                  We couldn't access enough public information to analyze this website.
+                </p>
+                <p>
+                  This may happen because the website restricts automated access or is temporarily unavailable.
+                </p>
+                <p className="text-rose-300/95 font-semibold">
+                  Please try another website or try again later.
+                </p>
+              </div>
+              <div className="pt-3 border-t border-rose-500/10 flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setUrlInput("")}
+                  className="text-xs font-bold text-rose-400 hover:text-rose-300 underline cursor-pointer"
+                >
+                  Clear search bar
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-start space-x-3.5 text-xs">
+              <AlertCircle className="h-5 w-5 shrink-0 mt-0.5 text-rose-400" />
+              <div className="space-y-1.5 flex-1">
+                <p className="font-semibold text-sm">Diagnostic Alert: Reachability Blocked</p>
+                <p className="opacity-95 leading-relaxed">
+                  Our secure crawler could not complete the discovery handshake with <strong className="text-rose-300 font-mono">{urlInput}</strong>. 
+                  The target server might be offline, requires a secure protocol, or is currently blocking automated crawlers inside its robots.txt file.
+                </p>
+                <div className="pt-2 border-t border-rose-500/5 mt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <span className="text-[11px] text-rose-500 font-mono font-bold">Suggested advice: {errorMsg}. Verify URL accuracy or try scanning a suggested company below.</span>
+                  <button
+                    type="button"
+                    onClick={() => setUrlInput("")}
+                    className="text-[11px] font-bold text-rose-300 hover:text-white underline cursor-pointer self-start"
+                  >
+                    Clear domain field
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
 

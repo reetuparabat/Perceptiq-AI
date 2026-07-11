@@ -25,6 +25,23 @@ import {
   AlertTriangle
 } from "lucide-react";
 
+function getProfessionalStatusLabel(status: string): string {
+  switch (status) {
+    case "Found":
+    case "Success":
+      return "Verified";
+    case "Not Found":
+    case "Failed":
+      return "Needs More Public Info";
+    case "Unknown":
+      return "Pending Analysis";
+    case "Restricted":
+      return "Restricted Access";
+    default:
+      return status;
+  }
+}
+
 interface EvidenceAuditorProps {
   darkMode: boolean;
   evidence?: EvidenceModel;
@@ -329,10 +346,10 @@ export default function EvidenceAuditor({
                           isFound
                             ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
                             : item.item.status === "Not Found"
-                            ? "bg-rose-500/10 text-rose-400 border border-rose-500/20"
+                            ? "bg-amber-500/10 text-amber-400 border border-amber-500/20"
                             : "bg-slate-500/10 text-slate-400 border border-slate-500/20"
                         }`}>
-                          {item.item.status}
+                          {getProfessionalStatusLabel(item.item.status)}
                         </span>
                       </td>
                       <td className="py-3.5 pr-4 font-mono text-[11px] max-w-xs truncate" title={val ? String(val) : ""}>
